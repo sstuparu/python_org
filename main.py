@@ -23,7 +23,7 @@ class PythonOrg(unittest.TestCase):
             f"Failed! Most recent release is {newest_python_release} not {my_release}"
 
     def test_verify_example_count_is_5(self):
-        my_example_no = 6
+        my_example_no = 5
 
         main_page = base_page.BasePage(self.driver)
         main_page.load()
