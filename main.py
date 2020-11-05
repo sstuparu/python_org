@@ -1,38 +1,50 @@
 import unittest
-from selenium import webdriver
-from pages import *
+from authenticate import Authenticate
+from pages.base_page import BasePage
+from pages.available_releases import AvailableReleasesPage
+from pages.search_results import SearchResultsPage
+from pages.first_result import FirstSearchResultPage
 import time
 
 
 class PythonOrg(unittest.TestCase):
-
     def setUp(self):
-        self.driver = webdriver.Chrome(r'C:\Program Files (x86)\chromedriver.exe')
-        #self.driver.get('https://www.python.org/')
+        self.driver = Authenticate().open_base_url()
 
     def test_verify_latest_python_release(self):
         my_release = '3.9'
+        my_available_releases_list = [
+                                   ['3.9', 'bugfix', '2020-10-05', '2025-10', 'PEP', '596'],
+                                   ['3.8', 'bugfix', '2019-10-14', '2024-10', 'PEP', '569'],
+                                   ['3.7', 'security', '2018-06-27', '2023-06-27', 'PEP', '537'],
+                                   ['3.6', 'security', '2016-12-23', '2021-12-23', 'PEP', '494'],
+                                   ['2.7', 'end-of-life', '2010-07-03', '2020-01-01', 'PEP', '373']]
 
-        main_page = base_page.BasePage(self.driver)
-        main_page.load()
+        main_page = BasePage(self.driver)
+        # main_page.load()
 
-        main_page.hover_over_and_click('downloads', '//*[@id="downloads"]/ul/li[1]/a')
-        newest_python_release = available_releases.AvailableReleases(self.driver).get_latest_python_release()
+        main_page.select_base_page_tab_and_click_subtab('downloads', 'All releases')
+        newest_python_release = AvailableReleasesPage(self.driver).get_latest_python_release()
 
         assert my_release == newest_python_release, \
             f"Failed! Most recent release is {newest_python_release} not {my_release}"
 
+        releases_list = AvailableReleasesPage(self.driver).get_info_about_available_releases()
+
+        assert releases_list == my_available_releases_list, \
+            "Failed! Actual releases aren't my releases"
+
     def test_verify_example_count_is_5(self):
         my_example_no = 5
 
-        main_page = base_page.BasePage(self.driver)
-        main_page.load()
-        main_page.search('decorator')
+        main_page = BasePage(self.driver)
+        # main_page.load()
+        main_page.search_for_keyword('decorator')
 
-        search_result = search_results.SearchResults(self.driver)
+        search_result = SearchResultsPage(self.driver)
         search_result.click_first_result()
 
-        first_result_page = first_result.FirstSearchResult(self.driver)
+        first_result_page = FirstSearchResultPage(self.driver)
         first_result_page.click_on_examples_link()
 
         actual_example_no = first_result_page.count_number_of_examples()
