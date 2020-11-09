@@ -60,7 +60,7 @@ class PythonOrg(unittest.TestCase):
         table1 = available_releases_obj.scrape_webpage_for_table('Python version')
         table2 = available_releases_obj.scrape_webpage_for_table('Release version')
 
-        date1 = datetime.datetime.strptime(table1[2][1], '%Y-%m-%d')
+        date1 = datetime.datetime.strptime(table1[1][2], '%Y-%m-%d')
         date2 = datetime.datetime.strptime(table2[1][1], '%b. %d, %Y')
 
         assert date1 == date2, \
