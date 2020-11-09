@@ -4,8 +4,7 @@ from pages.base_page import BasePage
 from pages.available_releases import AvailableReleasesPage
 from pages.search_results import SearchResultsPage
 from pages.first_result import FirstSearchResultPage
-import time
-
+import datetime
 
 class PythonOrg(unittest.TestCase):
     def setUp(self):
@@ -35,7 +34,7 @@ class PythonOrg(unittest.TestCase):
 
         verdict = available_releases_obj.compare_available_releases(my_available_releases_list,
                                                                     releases_list)
-        assert verdict == 'No differences', \
+        assert verdict == [], \
             f"Failed! Actual differences are:\n {[el for el in verdict]}"
 
     def test_verify_example_count_is_5(self):
@@ -55,6 +54,17 @@ class PythonOrg(unittest.TestCase):
 
         assert my_example_no == actual_example_no, \
             f"Failed! The actual example no is {actual_example_no} not {my_example_no}"
+
+    def test_compare_table_cells(self):
+        available_releases_obj = AvailableReleasesPage(self.driver)
+        table1 = available_releases_obj.scrape_webpage_for_table('Python version')
+        table2 = available_releases_obj.scrape_webpage_for_table('Release version')
+
+        date1 = datetime.datetime.strptime(table1[2][1], '%Y-%m-%d')
+        date2 = datetime.datetime.strptime(table2[1][1], '%b. %d, %Y')
+
+        assert date1 == date2, \
+            f"Failed! The two cells don't contain same info: {table1[1][2]} != {table2[1][1]}"
 
     def tearDown(self):
         Authenticate().close_driver()
