@@ -1,10 +1,12 @@
 import unittest
-from authenticate import Authenticate
+from components.authenticate import Authenticate
 from pages.base_page import BasePage
 from pages.available_releases import AvailableReleasesPage
 from pages.search_results import SearchResultsPage
 from pages.first_result import FirstSearchResultPage
+from components.tables import Tables
 import datetime
+
 
 class PythonOrg(unittest.TestCase):
     def setUp(self):
@@ -21,19 +23,17 @@ class PythonOrg(unittest.TestCase):
                                    ['2.7', 'end-of-life', '2010-07-03', '2020-01-01', 'PEP 373']]
 
         main_page = BasePage(self.driver)
-        # main_page.load()
-
         main_page.select_base_page_tab_and_click_subtab('downloads', 'All releases')
-        available_releases_obj = AvailableReleasesPage(self.driver)
-        newest_python_release = available_releases_obj.get_latest_python_release()
+
+        available_releases_obj = Tables(self.driver)
+        releases_list = available_releases_obj.scrape_webpage_for_table('Python version')
+        newest_python_release = releases_list[1][0]
 
         assert my_release == newest_python_release, \
             f"Failed! Most recent release is {newest_python_release} not {my_release}"
 
-        releases_list = available_releases_obj.get_all_available_releases()
-
-        verdict = available_releases_obj.compare_available_releases(my_available_releases_list,
-                                                                    releases_list)
+        verdict = AvailableReleasesPage(self.driver).compare_available_releases(my_available_releases_list,
+                                                                                releases_list[1::])
         assert verdict == [], \
             f"Failed! Actual differences are:\n {[el for el in verdict]}"
 
@@ -55,8 +55,22 @@ class PythonOrg(unittest.TestCase):
         assert my_example_no == actual_example_no, \
             f"Failed! The actual example no is {actual_example_no} not {my_example_no}"
 
+    # def test_compare_table_cells(self):
+    #     available_releases_obj = AvailableReleasesPage(self.driver)
+    #     table1 = available_releases_obj.scrape_webpage_for_table('Python version')
+    #     table2 = available_releases_obj.scrape_webpage_for_table('Release version')
+    #
+    #     date1 = datetime.datetime.strptime(table1[1][2], '%Y-%m-%d')
+    #     date2 = datetime.datetime.strptime(table2[1][1], '%b. %d, %Y')
+    #
+    #     assert date1 == date2, \
+    #         f"Failed! The two cells don't contain same info: {table1[1][2]} != {table2[1][1]}"
+
     def test_compare_table_cells(self):
-        available_releases_obj = AvailableReleasesPage(self.driver)
+        main_page = BasePage(self.driver)
+        main_page.select_base_page_tab_and_click_subtab('downloads', 'All releases')
+
+        available_releases_obj = Tables(self.driver)
         table1 = available_releases_obj.scrape_webpage_for_table('Python version')
         table2 = available_releases_obj.scrape_webpage_for_table('Release version')
 
