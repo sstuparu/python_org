@@ -1,9 +1,8 @@
 from selenium.webdriver.common.by import By
+from .authenticate import Authenticate
 
 
-class Tables:
-    def __init__(self, browser):
-        self.browser = browser
+class Tables(Authenticate):
 
     def scrape_webpage_for_table(self, header_needed):
         """This method extracts desired table from a page
@@ -11,7 +10,7 @@ class Tables:
         :param header_needed: list of header cells or a string representing a cell from the header
         :return: a list of lists consisting of table rows (first list is the header
         """
-        tables = self.browser.find_elements(By.XPATH, '//div[./ol]')
+        tables = self.driver.find_elements(By.XPATH, '//div[./ol]')
         headers = [table.find_element(By.CLASS_NAME, 'list-row-headings') for table in tables]
         contents = [table.find_element(By.TAG_NAME, 'ol') for table in tables]
         index = ''

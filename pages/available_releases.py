@@ -1,11 +1,11 @@
 from selenium.webdriver.common.by import By
 from tabulate import tabulate
+from components.authenticate import Authenticate
 
 
-class AvailableReleasesPage:
+class AvailableReleasesPage(Authenticate):
 
-    def __init__(self, browser):
-        self.browser = browser
+    def __init__(self):
         self.available_releases = "//div[./*[text()='Active Python Releases']]/ol"
 
     # def get_latest_python_release(self):

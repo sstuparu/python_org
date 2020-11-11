@@ -13,9 +13,9 @@ class Authenticate:
         Authenticate.driver = None
 
     def get_to_web_address(self, URL='https://www.python.org/'):
-        self.create_driver()
+        # self.create_driver()
         Authenticate.driver.get(URL)
-        return Authenticate.driver
+        # return Authenticate.driver
 
 
 
