@@ -14,6 +14,7 @@ class PythonOrg(unittest.TestCase):
     tables_obj = Tables()
     search_result_page_obj = SearchResultsPage()
     first_result_page_obj = FirstSearchResultPage()
+    available_releases_obj = AvailableReleasesPage()
 
     def setUp(self):
         Authenticate().create_driver()

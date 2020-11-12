@@ -32,9 +32,9 @@ class AvailableReleasesPage(Authenticate):
         else:
             return differences
 
-    def show_as_table_available_releases(self, table):
+    def show_as_table_available_releases(self, content, header):
         # header = ['Python version', 'Maintenance status', 'First released', 'End of support', 'Release schedule']
-        return tabulate(table[1::], table[0])
+        return tabulate(content, header)
 
     # Scrape webpage using soup
     # def scrape_webpage_for_table(self, header_needed):
