@@ -7,7 +7,6 @@ from pages.first_result import FirstSearchResultPage
 from components.tables import Tables
 import datetime
 from selenium.webdriver.common.by import By
-import time
 
 
 class PythonOrg(unittest.TestCase):
@@ -110,14 +109,14 @@ class PythonOrg(unittest.TestCase):
         table1 = self.tables_obj.scrape_webpage_for_table('Python version')
         table2 = self.tables_obj.scrape_webpage_for_table('Release version')
 
-        for row_table1 in table1[1:]:
-            for row_table2 in table2[1:]:
+        for row_table1 in table1['content']:
+            for row_table2 in table2['content']:
                 if row_table1[0] in row_table2[0]:
                     correspondence_dict[row_table1[0]] = correspondence_dict.get(row_table1[0], []) + [row_table2[0]]
                 else:
                     continue
 
-        for release in table1[1:]:
+        for release in table1['content']:
             assert correspondence_dict.get(release[0]), \
                 f"Release {release[0]} not found in dictionary"
 
@@ -132,7 +131,7 @@ class PythonOrg(unittest.TestCase):
 
         for release in row_identifier_list:
             self.main_page_obj.select_base_page_tab_and_click_subtab('downloads', 'All releases')
-            self.tables_obj.click_table_cell(release, button_to_click)
+            self.tables_obj.click_table_cell('Release version', release, button_to_click)
 
             current_page_title = Authenticate().driver.find_element(By.CLASS_NAME, 'page-title').text
 

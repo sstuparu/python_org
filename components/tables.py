@@ -4,15 +4,19 @@ from .authenticate import Authenticate
 
 class Tables(Authenticate):
 
-    def scrape_webpage_for_table(self, header_needed):
+    def scrape_webpage_for_table(self, header_needed, as_selenium_objects=False):
         """This method extracts desired table from a page
 
-        :param header_needed: list of header cells or a string representing a cell from the header
-        :return: a list of lists consisting of table rows (first list is the header
+        Parameters:
+            header_needed (list or str): list of header cells or a string representing a cell from the header
+            as_selenium_objects (bool): specifies if table contents are returned as selenium objects
+        Return:
+             table_dict: a dictionary with keys 'header' and 'content'
         """
         tables = self.driver.find_elements(By.XPATH, '//div[./ol]')
         headers = [table.find_element(By.CLASS_NAME, 'list-row-headings') for table in tables]
         contents = [table.find_element(By.TAG_NAME, 'ol') for table in tables]
+        table_dict = dict()
         index = ''
 
         for i in range(len(headers)):
@@ -26,23 +30,29 @@ class Tables(Authenticate):
 
         if index == '':
             raise ValueError('No header found or header introduced is incorrect')
+        elif as_selenium_objects:
+            table_dict['header'] = headers[index]
+            table_dict['content'] = contents[index]
+
+            return table_dict
         else:
-            header = [cell.text for cell in headers[index].find_elements(By.TAG_NAME, 'span')]
-            content = [[cell.text for cell in row.find_elements(By.TAG_NAME, 'span') if cell.text != ''] for row in
-                       contents[index].find_elements(By.TAG_NAME, 'li')]
+            table_dict['header'] = [cell.text for cell in headers[index].find_elements(By.TAG_NAME, 'span')]
+            table_dict['content'] = [[cell.text for cell in row.find_elements(By.TAG_NAME, 'span') if cell.text != '']
+                                     for row in contents[index].find_elements(By.TAG_NAME, 'li')]
 
-            return [header] + content
+            return table_dict
 
-    def click_table_cell(self, cell_to_identify_row, cell_to_click):
+    def click_table_cell(self, header_needed, cell_to_identify_row, cell_to_click):
         """
         Method that finds a desired python release and clicks on 'Download' link for that specific release
 
         Parameters:
+            header_needed (str or list): list of header cells or a string representing a cell from the header
             cell_to_identify_row (str): a string containing the desired python release
             cell_to_click (str): a string containing the cell one wants to click
         """
-        table = self.driver.find_element(By.XPATH, "//div[./*[text()='Looking for a specific release?']]")
-        table_rows = table.find_elements(By.TAG_NAME, 'li')
+        table = self.scrape_webpage_for_table(header_needed=header_needed, as_selenium_objects=True)
+        table_rows = table['content'].find_elements(By.TAG_NAME, 'li')
         desired_row = None
 
         for row in table_rows:
