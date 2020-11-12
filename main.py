@@ -6,6 +6,8 @@ from pages.search_results import SearchResultsPage
 from pages.first_result import FirstSearchResultPage
 from components.tables import Tables
 import datetime
+from selenium.webdriver.common.by import By
+import time
 
 
 class PythonOrg(unittest.TestCase):
@@ -110,16 +112,32 @@ class PythonOrg(unittest.TestCase):
 
         for row_table1 in table1[1:]:
             for row_table2 in table2[1:]:
-                if not correspondence_dict.get(row_table1[0]) and row_table1[0] in row_table2[0]:
-                    correspondence_dict[row_table1[0]] = [] + [row_table2[0]]
-                elif correspondence_dict.get(row_table1[0]) and row_table1[0] in row_table2[0]:
-                    correspondence_dict[row_table1[0]].append(row_table2[0])
+                if row_table1[0] in row_table2[0]:
+                    correspondence_dict[row_table1[0]] = correspondence_dict.get(row_table1[0], []) + [row_table2[0]]
                 else:
                     continue
 
-        for key in correspondence_dict:
-            assert correspondence_dict.get(key), \
-                f"Key {key} not found in dictionary"
+        for release in table1[1:]:
+            assert correspondence_dict.get(release[0]), \
+                f"Release {release[0]} not found in dictionary"
+
+    def test_click_on_cells(self):
+        """
+        1. Go to 'Downloads' -> 'All releases' page
+        2. Click 'Download' button of three desired releases
+        3. Verify the page that appears is corresponding to the release clicked
+        """
+        row_identifier_list = ['Python 3.9.0', 'Python 3.8.6', 'Python 3.5.10']
+        button_to_click = 'Download'
+
+        for release in row_identifier_list:
+            self.main_page_obj.select_base_page_tab_and_click_subtab('downloads', 'All releases')
+            self.tables_obj.click_table_cell(release, button_to_click)
+
+            current_page_title = Authenticate().driver.find_element(By.CLASS_NAME, 'page-title').text
+
+            assert release == current_page_title, \
+                f"Current page title is {current_page_title} not {release} as expected"
 
     def tearDown(self):
         Authenticate().close_driver()
