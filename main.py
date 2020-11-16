@@ -38,13 +38,13 @@ class PythonOrg(unittest.TestCase):
         self.main_page_obj.select_base_page_tab_and_click_subtab('downloads', 'All releases')
 
         releases_list = self.tables_obj.scrape_webpage_for_table('Python version')
-        newest_python_release = releases_list[1][0]
+        newest_python_release = releases_list['content'][0][0]
 
         assert my_release == newest_python_release, \
             f"Failed! Most recent release is {newest_python_release} not {my_release}"
 
         verdict = AvailableReleasesPage().compare_available_releases(my_available_releases_list,
-                                                                     releases_list[1::])
+                                                                     releases_list['content'])
         assert verdict == [], \
             f"Failed! Actual differences are:\n {[el for el in verdict]}"
 
@@ -91,11 +91,11 @@ class PythonOrg(unittest.TestCase):
         table1 = self.tables_obj.scrape_webpage_for_table('Python version')
         table2 = self.tables_obj.scrape_webpage_for_table('Release version')
 
-        date1 = datetime.datetime.strptime(table1[1][2], '%Y-%m-%d')
-        date2 = datetime.datetime.strptime(table2[1][1], '%b. %d, %Y')
+        date1 = datetime.datetime.strptime(table1['content'][0][2], '%Y-%m-%d')
+        date2 = datetime.datetime.strptime(table2['content'][0][1], '%b. %d, %Y')
 
         assert date1 == date2, \
-            f"Failed! The two cells don't contain same info: {table1[1][2]} != {table2[1][1]}"
+            f"Failed! The two cells don't contain same info: {table1['content'][0][2]} != {table2['content'][0][1]}"
 
     def test_verify_correspondence_between_tables(self):
         """
